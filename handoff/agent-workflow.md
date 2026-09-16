@@ -18,7 +18,19 @@ Os comandos devolvem JSON; erros vão para stderr com código de saída 1.
 
 ## Guardar um checkpoint
 
-Ao concluir uma etapa ou antes de parar, usar `handoff checkpoint <id> --file checkpoint.json`.
+Usar `handoff checkpoint <id> --file checkpoint.json` nos seguintes momentos:
+
+- Assim que o plano estiver definido, antes de começar a implementação. Guardar
+  os passos concretos em `pending`; dizer apenas «plano definido» não é suficiente.
+- Após cada alteração relevante ou validação, antes de avançar para o próximo
+  trabalho, mesmo que a etapa ou fase ainda esteja incompleta.
+- Após uma mudança de plano, tentativa falhada ou bloqueio que altere a retoma.
+- Antes de parar ou entregar o trabalho a outro agente.
+
+Não adiar checkpoints até ao fim de uma fase ou do contexto: o utilizador pode
+interromper a sessão sem aviso. Um evento de progresso não substitui um checkpoint.
+Manter cada atualização curta e confirmar que o comando terminou com sucesso.
+
 Também aceita `--file -` para ler JSON de stdin. Exemplo mínimo:
 
 ```json

@@ -24,7 +24,7 @@ handoff
 
 O agente só precisa de acesso ao terminal e ao comando:
 
-> Executa `handoff guide` e usa o handoff para guardar o progresso desta tarefa.
+> Executa `handoff guide` e acompanha esta tarefa. Guarda um checkpoint com o plano inicial e atualiza-o após cada alteração relevante ou validação, mesmo a meio de uma fase.
 
 Noutra sessão, com acesso ao mesmo projeto:
 
