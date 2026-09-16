@@ -26,7 +26,7 @@ def overview(threads, width):
     )
     lines = ["HANDOFF", counts, "─" * width]
     if not threads:
-        lines.append("Ainda não existem threads. Cria uma através do MCP.")
+        lines.append("Ainda não existem threads. Usa handoff start --help para criar uma.")
     for number, thread in enumerate(threads, 1):
         label = f"{number:>3}  {STATUS[thread['status']]:<10}  {clean(thread['title'])}"
         lines.append(textwrap.shorten(label, width=width, placeholder="…"))
@@ -71,14 +71,14 @@ def detail(context, width):
     return "\n".join(lines)
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Dashboard de terminal do Handoff")
     parser.add_argument("--db", help="Base de dados alternativa (padrão: ~/.handoff/handoff.db)")
     parser.add_argument("--once", action="store_true", help="Mostrar a lista e sair")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     path = Path(args.db).resolve() if args.db else default_database()
     if args.db and not path.is_file():
-        parser.error(f"Base de dados não encontrada: {path}. Usa o caminho configurado no MCP.")
+        parser.error(f"Base de dados não encontrada: {path}. Confirma o caminho usado nas tarefas.")
     try:
         with Store(path) as store:
             interactive = sys.stdin.isatty() and sys.stdout.isatty() and not args.once

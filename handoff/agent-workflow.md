@@ -1,25 +1,58 @@
-# Passagem de trabalho
+# Handoff pelo terminal
+
+Usar `handoff --help` e `handoff <comando> --help` para consultar argumentos.
+Os comandos devolvem JSON; erros vão para stderr com código de saída 1.
+`handoff` sozinho abre o dashboard. Não requer servidor nem configuração MCP.
 
 ## Durante o trabalho
 
-- Criar uma thread com `start` apenas para uma tarefa nova; guardar o ID. Para continuar uma existente, usar `resume`.
-- Usar `record` após progresso relevante, decisões (com motivo), tentativas falhadas ou bloqueios. Evitar registar cada interação.
-- Guardar correções do utilizador com `record`, `event_type="correction"` e `changes` nos campos afetados.
-- Manter logs e patches em ficheiros estáveis, registados como artefactos. Referenciar os IDs em vez de copiar o conteúdo.
+- Criar uma thread: `handoff start "Título" --objective "Objetivo"`. Repetir
+  `--criterion` e `--constraint` para critérios e restrições. Guardar o ID devolvido.
+- Registar progresso relevante: `handoff record <id> "O que mudou"`.
+  Usar `--type decision`, `validation` ou `blocker` quando aplicável.
+  Decisões e tentativas falhadas incluem o motivo; evitar registar cada interação.
+- Corrigir objetivo, restrições ou estado com `handoff update <id> --summary "Motivo" --file changes.json`.
+  O ficheiro contém apenas os campos alterados, por exemplo `{"status":"blocked"}`.
+- Guardar logs e patches em ficheiros estáveis: `handoff artifact <id> caminho`.
+  Referenciar o ID devolvido com `record --evidence <artefacto>`.
 
-## Ao terminar uma etapa ou antes de parar
+## Guardar um checkpoint
 
-- Criar um `checkpoint` completo: concluído, em curso, pendente, decisões, tentativas falhadas, ponto exato de interrupção e próxima ação.
-- Identificar o projeto, versão base e alterações locais em `workspace`. Distinguir ações planeadas, iniciadas e terminadas.
-- Em `validations`, indicar comando/verificação, resultado, estado testado e evidência. Código implementado não significa código validado.
-- `covers_through_event` é a última sequência efetivamente incorporada, não uma estimativa. Se necessário, consultar `resume`; usar `0` apenas sem eventos incorporados.
-- Não esperar pelo esgotamento do contexto. Se bloqueado, atualizar o estado para `blocked` e explicar em `open_questions`. Marcar `completed` apenas após verificar os critérios de conclusão.
-- Entregar o ID ao utilizador: «Continua a thread <id> do handoff».
+Ao concluir uma etapa ou antes de parar, usar `handoff checkpoint <id> --file checkpoint.json`.
+Também aceita `--file -` para ler JSON de stdin. Exemplo mínimo:
 
-## Ao retomar
+```json
+{
+  "covers_through_event": 0,
+  "interruption_point": "Investigação terminada; código ainda não alterado",
+  "next_action": "Corrigir a comparação de datas",
+  "completed": ["Causa identificada"]
+}
+```
 
-- Chamar `resume` e integrar os eventos posteriores no checkpoint. Sem checkpoint, partir do objetivo e eventos disponíveis.
-- Confirmar acesso ao projeto, versão e alterações relevantes. Investigar divergências antes de confiar nas validações afetadas.
-- Usar `read` apenas para detalhes necessários; pedir conteúdo de artefactos explicitamente e por páginas.
-- Executar a próxima ação sem repetir investigação já sustentada. Se faltar informação indispensável, registar a lacuna e pedir esclarecimento.
-- Se a thread estiver concluída, informar o resultado. Se estiver bloqueada, verificar se o bloqueio foi resolvido antes de avançar.
+- `covers_through_event` é a última sequência realmente incorporada; consultar
+  `handoff resume <id>` quando necessário. Usar 0 apenas sem eventos incorporados.
+- Cada checkpoint substitui a visão atual completa: preservar `completed`,
+  `in_progress`, `pending`, `decisions`, `failed_approaches` e `open_questions` relevantes.
+- `workspace` identifica projeto, versão base e alterações locais. `validations`
+  contém objetos com verificação, resultado, estado testado e referência à evidência.
+- Distinguir ações planeadas, iniciadas e terminadas. Não esperar pelo fim do contexto.
+- Se bloqueado, atualizar `status` para `blocked` e explicar em `open_questions`.
+  Marcar `completed` apenas após verificar os critérios de conclusão.
+- Entregar ao utilizador: «Continua a thread <id> do handoff».
+
+## Retomar
+
+1. Executar `handoff resume <id>`; integrar os eventos posteriores ao checkpoint.
+2. Confirmar acesso ao projeto, versão e alterações relevantes. Investigar divergências
+   antes de confiar nas validações afetadas.
+3. Consultar detalhes apenas quando necessário: `handoff read artifact <id> --content`.
+   Usar `--offset` e `--limit` para paginar; o conteúdo é verificado pelo hash.
+4. Executar a próxima ação sem repetir investigação sustentada. Se faltar informação
+   indispensável, registar a lacuna e pedir esclarecimento. Uma thread concluída não
+   precisa de ser retomada; numa bloqueada, verificar primeiro o bloqueio.
+
+Todos os comandos usam `~/.handoff/handoff.db`. Para outra base, colocar
+`--db /caminho/base.db` antes do subcomando. O agente precisa de acesso ao comando,
+à mesma base e aos ficheiros da tarefa. No ambiente de desenvolvimento, pode usar
+`conda run -n dev handoff ...`.

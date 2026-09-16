@@ -12,7 +12,7 @@
     },
     {
       "id": 3,
-      "title": "Expor as operações por MCP stdio",
+      "title": "Expor as operações pela CLI local",
       "status": "completed"
     },
     {
@@ -47,7 +47,7 @@
       "id": 9,
       "title": "Implementar executor e medição de consumo",
       "status": "pending",
-      "done_when": "Um executor separado do MCP compara histórico completo, resumo simples e handoff com o mesmo modelo e ferramentas, contando preparação, entrada, saída, cache, custo, tempo e sucesso."
+      "done_when": "Um executor separado da CLI compara histórico completo, resumo simples e handoff com o mesmo modelo e ferramentas, contando preparação, entrada, saída, cache, custo, tempo e sucesso."
     },
     {
       "id": 10,

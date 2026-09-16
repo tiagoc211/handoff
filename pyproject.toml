@@ -3,15 +3,14 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "handoff-mcp"
+name = "handoff-cli"
 version = "0.1.0"
-description = "Small MCP server for persistent task handoffs"
+description = "Local CLI for persistent task handoffs"
 requires-python = ">=3.11"
-dependencies = ["mcp>=1.28,<2"]
+dependencies = []
 
 [project.scripts]
-handoff = "handoff.dashboard:main"
-handoff-mcp = "handoff.server:main"
+handoff = "handoff.cli:main"
 handoff-dashboard = "handoff.dashboard:main"
 
 [tool.setuptools.packages.find]
