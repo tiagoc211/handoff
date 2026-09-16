@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+from importlib.resources import files
 from pathlib import Path
 from typing import Any, Literal
 
@@ -23,12 +24,7 @@ class ThreadChanges(BaseModel):
 def create_server(database: str) -> FastMCP:
     server = FastMCP(
         "handoff",
-        instructions=(
-            "Start a thread once; save its ID. Record meaningful progress and corrections. "
-            "Checkpoint before stopping, using the last event sequence you actually read. "
-            "Resume by ID and read evidence only when needed. Confirm workspace state "
-            "before trusting past validations."
-        ),
+        instructions=files("handoff").joinpath("agent-workflow.md").read_text(encoding="utf-8"),
         log_level="WARNING",
     )
 

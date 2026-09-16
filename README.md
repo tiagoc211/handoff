@@ -3,6 +3,10 @@
 Estado persistente de tarefas para passagem entre agentes. Contrato em
 [docs/data-contract.md](docs/data-contract.md).
 
+As [instruções para os agentes](handoff/agent-workflow.md) são enviadas na
+inicialização MCP. O cliente precisa de as disponibilizar ao modelo; caso não o
+faça, incluir esse documento nas instruções do agente.
+
 ## Desenvolvimento
 
 Usar o ambiente Conda `dev`. O armazenamento usa apenas a biblioteca padrão do Python.
@@ -49,6 +53,13 @@ Continuar com `offset=next_offset` enquanto este não for nulo.
 
 Os testes MCP iniciam processos reais, verificam as cinco ferramentas e retomam
 uma thread num novo processo. Não é necessário um modelo ou uma chave de API.
+
+Para validar uma passagem real: numa sessão, pedir ao agente uma tarefa pequena
+e interrompê-la após um checkpoint. Numa nova sessão com acesso ao mesmo projeto
+e base de dados, dizer apenas «Continua a thread <id> do handoff». Verificar se
+o agente identifica a próxima ação, respeita as restrições e conclui a tarefa
+sem pedir a explicação anterior. Este exercício com modelos é distinto dos testes
+automatizados de transporte e persistência.
 
 ## Uso do armazenamento em Python
 

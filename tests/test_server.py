@@ -20,7 +20,8 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         async with asyncio.timeout(30):
             async with stdio_client(params) as (reader, writer):
                 async with ClientSession(reader, writer) as session:
-                    await session.initialize()
+                    initialization = await session.initialize()
+                    self.assertTrue(initialization.instructions)
                     yield session
 
     async def call(self, session, name, **arguments):

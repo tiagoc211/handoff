@@ -14,3 +14,6 @@ handoff-mcp = "handoff.server:main"
 
 [tool.setuptools.packages.find]
 include = ["handoff*"]
+
+[tool.setuptools.package-data]
+handoff = ["agent-workflow.md"]
