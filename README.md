@@ -61,6 +61,21 @@ o agente identifica a próxima ação, respeita as restrições e conclui a tare
 sem pedir a explicação anterior. Este exercício com modelos é distinto dos testes
 automatizados de transporte e persistência.
 
+## Dashboard no terminal
+
+Após instalar o projeto, abrir com a mesma base de dados do MCP:
+
+```sh
+conda activate dev
+handoff-dashboard --db /caminho/absoluto/handoff.db
+```
+
+Mostra as threads e os totais por estado. Introduzir o número de uma thread para
+consultar progresso, próxima ação e eventos posteriores ao checkpoint. Enter
+atualiza a lista; `q` sai. A consulta não altera as tarefas.
+Usar `--once` para imprimir a lista e sair. Também funciona com
+`python -m handoff.dashboard`.
+
 ## Uso do armazenamento em Python
 
 ```python

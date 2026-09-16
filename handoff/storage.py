@@ -74,6 +74,10 @@ class Store:
     def get_thread(self, thread_id):
         return self._get("threads", thread_id)
 
+    def list_threads(self):
+        rows = self.db.execute("SELECT data FROM threads ORDER BY rowid DESC").fetchall()
+        return [json.loads(row[0]) for row in rows]
+
     def _last_sequence(self, thread_id):
         return self.db.execute(
             "SELECT COALESCE(MAX(sequence), 0) FROM events WHERE thread_id = ?",

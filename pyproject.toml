@@ -11,6 +11,7 @@ dependencies = ["mcp>=1.28,<2"]
 
 [project.scripts]
 handoff-mcp = "handoff.server:main"
+handoff-dashboard = "handoff.dashboard:main"
 
 [tool.setuptools.packages.find]
 include = ["handoff*"]
