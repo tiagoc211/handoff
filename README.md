@@ -1,26 +1,28 @@
 # Handoff
 
-Estado persistente de tarefas para passagem entre agentes. Contrato em
-[docs/data-contract.md](docs/data-contract.md).
+Continua uma tarefa com outro agente, sem explicar tudo de novo.
 
-As [instruções para os agentes](handoff/agent-workflow.md) são enviadas na
-inicialização MCP. O cliente precisa de as disponibilizar ao modelo; caso não o
-faça, incluir esse documento nas instruções do agente.
-
-## Desenvolvimento
-
-Usar o ambiente Conda `dev`. O armazenamento usa apenas a biblioteca padrão do Python.
-O servidor usa o [SDK Python oficial do MCP](https://py.sdk.modelcontextprotocol.io/v1/), na linha 1.x.
-
-```sh
-conda run -n dev python -m pip install -e .
-conda run -n dev python -m unittest discover -s tests -v
+```mermaid
+flowchart LR
+    A[Agente A] -->|Guarda progresso| M[Handoff · MCP]
+    B[Agente B] -->|Pede contexto para continuar| M
+    M <-->|Checkpoints e eventos| D[(SQLite local)]
+    D --> T[Dashboard · handoff]
 ```
 
-## Servidor MCP
+O agente guarda o que fez, onde parou e a próxima ação. O seguinte recebe o último
+checkpoint e as novidades posteriores; consulta evidências quando precisa.
+Tudo fica em `~/.handoff/handoff.db`.
 
-O cliente inicia o servidor por stdio. Exemplo de configuração para clientes com
-`mcpServers`:
+## Usar
+
+```sh
+conda activate dev
+pip install -e .
+handoff
+```
+
+Adicionar ao cliente MCP (formato `mcpServers`):
 
 ```json
 {
@@ -33,74 +35,25 @@ O cliente inicia o servidor por stdio. Exemplo de configuração para clientes c
 }
 ```
 
-Para uma base alternativa, acrescentar `--db` e um caminho absoluto cujo diretório exista.
-Se o cliente não encontrar `conda`, usar o caminho absoluto do executável.
-`--no-capture-output` permite a comunicação stdio sem buffering do Conda.
+Na primeira sessão: **“Usa o handoff para guardar o progresso desta tarefa.”**
+Na seguinte, com acesso ao mesmo projeto: **“Continua a thread `<id>` do handoff.”**
 
-| Ferramenta | Uso |
-| --- | --- |
-| `start` | Criar a thread e guardar o ID devolvido. |
-| `record` | Registar eventos; `correction` com `changes` atualiza a thread. |
-| `checkpoint` | Consolidar o trabalho, indicando a última sequência incorporada (`0` sem eventos). |
-| `resume` | Obter a thread atual, o último checkpoint e os eventos posteriores. |
-| `read` | Consultar um registo por tipo e ID. |
+## No terminal
 
-Para guardar evidência, usar `record` com `event_type="artifact"` e `artifact_path`
-absoluto; depois incluir o ID devolvido em `evidence_refs` de um evento.
-`read` devolve metadados por defeito. Para texto UTF-8, `include_content=true`
-verifica o hash e devolve até `limit` caracteres (4000 por defeito, máximo 16000).
-Continuar com `offset=next_offset` enquanto este não for nulo.
+Exemplo com duas threads:
 
-Os testes MCP iniciam processos reais, verificam as cinco ferramentas e retomam
-uma thread num novo processo. Não é necessário um modelo ou uma chave de API.
+```text
+HANDOFF
+Em curso: 1 | Bloqueada: 0 | Concluída: 1
+────────────────────────────────────────────────────────
+1 Em curso Corrigir expiração de sessões
+     7c912be805cf4bd4a8362bd6fc8f0f21
+2 Concluída Adicionar testes de autenticação
+     d042ae3d60f84dfe8f2daa4d18f126a9
 
-Para validar uma passagem real: numa sessão, pedir ao agente uma tarefa pequena
-e interrompê-la após um checkpoint. Numa nova sessão com acesso ao mesmo projeto
-e base de dados, dizer apenas «Continua a thread <id> do handoff». Verificar se
-o agente identifica a próxima ação, respeita as restrições e conclui a tarefa
-sem pedir a explicação anterior. Este exercício com modelos é distinto dos testes
-automatizados de transporte e persistência.
+Base de dados: /Users/tu/.handoff/handoff.db
 
-## Dashboard no terminal
-
-Após instalar o projeto, abrir:
-
-```sh
-conda activate dev
-handoff
+Número: abrir | Enter: atualizar | q: sair >
 ```
 
-O dashboard e o MCP usam por defeito `~/.handoff/handoff.db`, independentemente
-da pasta atual. Na primeira utilização, a base é criada automaticamente.
-Se o MCP estiver configurado com `--db`, usar `handoff --db /mesmo/caminho/handoff.db`.
-Bases locais anteriores não são migradas automaticamente.
-
-Mostra as threads e os totais por estado. Introduzir o número de uma thread para
-consultar progresso, próxima ação e eventos posteriores ao checkpoint. Enter
-atualiza a lista; `q` sai. A consulta não altera as tarefas.
-Usar `--once` para imprimir a lista e sair. Também funciona com
-`python -m handoff.dashboard`.
-
-## Uso do armazenamento em Python
-
-```python
-from handoff import Store
-
-with Store("handoff.db") as store:
-    thread = store.create_thread("Corrigir sessões", "Rejeitar sessões expiradas")
-    event = store.record(thread["id"], "progress", "Identificada a causa")
-    store.checkpoint(
-        thread["id"],
-        covers_through_event=event["sequence"],
-        interruption_point="Investigação terminada; código ainda não alterado",
-        next_action="Corrigir a comparação de datas",
-    )
-    context = store.resume(thread["id"])
-```
-
-A base de dados é criada ao abrir `Store`. As correções da thread e os respetivos
-eventos são gravados na mesma transação. `resume` lê um estado consistente.
-
-Os artefactos são referências a ficheiros locais: o armazenamento calcula o hash,
-mas não copia os ficheiros. É necessário mantê-los disponíveis e verificar o hash
-antes de confiar no conteúdo. A leitura de conteúdo pelo MCP faz essa verificação.
+Abre uma thread pelo número para ver o progresso, os bloqueios e a próxima ação.
