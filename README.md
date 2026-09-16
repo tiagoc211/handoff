@@ -20,20 +20,20 @@ conda run -n dev python -m unittest discover -s tests -v
 ## Servidor MCP
 
 O cliente inicia o servidor por stdio. Exemplo de configuração para clientes com
-`mcpServers` (substituir o caminho da base de dados por um caminho absoluto real):
+`mcpServers`:
 
 ```json
 {
   "mcpServers": {
     "handoff": {
       "command": "conda",
-      "args": ["run", "--no-capture-output", "-n", "dev", "python", "-m", "handoff.server", "--db", "/caminho/absoluto/handoff.db"]
+      "args": ["run", "--no-capture-output", "-n", "dev", "python", "-m", "handoff.server"]
     }
   }
 }
 ```
 
-O diretório da base de dados deve existir. Usar o mesmo caminho entre sessões.
+Para uma base alternativa, acrescentar `--db` e um caminho absoluto cujo diretório exista.
 Se o cliente não encontrar `conda`, usar o caminho absoluto do executável.
 `--no-capture-output` permite a comunicação stdio sem buffering do Conda.
 
@@ -63,12 +63,17 @@ automatizados de transporte e persistência.
 
 ## Dashboard no terminal
 
-Após instalar o projeto, abrir com a mesma base de dados do MCP:
+Após instalar o projeto, abrir:
 
 ```sh
 conda activate dev
-handoff-dashboard --db /caminho/absoluto/handoff.db
+handoff
 ```
+
+O dashboard e o MCP usam por defeito `~/.handoff/handoff.db`, independentemente
+da pasta atual. Na primeira utilização, a base é criada automaticamente.
+Se o MCP estiver configurado com `--db`, usar `handoff --db /mesmo/caminho/handoff.db`.
+Bases locais anteriores não são migradas automaticamente.
 
 Mostra as threads e os totais por estado. Introduzir o número de uma thread para
 consultar progresso, próxima ação e eventos posteriores ao checkpoint. Enter

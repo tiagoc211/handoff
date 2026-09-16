@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 dependencies = ["mcp>=1.28,<2"]
 
 [project.scripts]
+handoff = "handoff.dashboard:main"
 handoff-mcp = "handoff.server:main"
 handoff-dashboard = "handoff.dashboard:main"
 

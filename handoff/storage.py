@@ -8,9 +8,15 @@ from pathlib import Path
 from uuid import uuid4
 
 
+def default_database():
+    directory = Path.home() / ".handoff"
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory / "handoff.db"
+
+
 class Store:
-    def __init__(self, path="handoff.db"):
-        self.db = sqlite3.connect(path)
+    def __init__(self, path=None):
+        self.db = sqlite3.connect(path if path is not None else default_database())
         self.db.execute("PRAGMA foreign_keys = ON")
         self.db.executescript("""
             CREATE TABLE IF NOT EXISTS threads (

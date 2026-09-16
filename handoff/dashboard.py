@@ -8,7 +8,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-from .storage import Store
+from .storage import Store, default_database
 
 
 STATUS = {"active": "Em curso", "blocked": "Bloqueada", "completed": "Concluída"}
@@ -73,11 +73,11 @@ def detail(context, width):
 
 def main():
     parser = argparse.ArgumentParser(description="Dashboard de terminal do Handoff")
-    parser.add_argument("--db", default="handoff.db", help="Mesma base de dados usada pelo MCP")
+    parser.add_argument("--db", help="Base de dados alternativa (padrão: ~/.handoff/handoff.db)")
     parser.add_argument("--once", action="store_true", help="Mostrar a lista e sair")
     args = parser.parse_args()
-    path = Path(args.db).resolve()
-    if not path.is_file():
+    path = Path(args.db).resolve() if args.db else default_database()
+    if args.db and not path.is_file():
         parser.error(f"Base de dados não encontrada: {path}. Usa o caminho configurado no MCP.")
     try:
         with Store(path) as store:

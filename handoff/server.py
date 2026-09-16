@@ -9,7 +9,7 @@ from typing import Any, Literal
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, ConfigDict
 
-from .storage import Store
+from .storage import Store, default_database
 
 
 class ThreadChanges(BaseModel):
@@ -120,9 +120,10 @@ def create_server(database: str) -> FastMCP:
 
 def main():
     parser = argparse.ArgumentParser(description="Handoff MCP server (stdio)")
-    parser.add_argument("--db", default="handoff.db", help="SQLite file (prefer an absolute path)")
+    parser.add_argument("--db", help="SQLite file (default: ~/.handoff/handoff.db)")
     args = parser.parse_args()
-    create_server(str(Path(args.db).resolve())).run(transport="stdio")
+    database = Path(args.db).resolve() if args.db else default_database()
+    create_server(str(database)).run(transport="stdio")
 
 
 if __name__ == "__main__":
