@@ -1,0 +1,65 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Definir o contrato de dados",
+      "status": "completed"
+    },
+    {
+      "id": 2,
+      "title": "Implementar armazenamento SQLite e retoma",
+      "status": "completed"
+    },
+    {
+      "id": 3,
+      "title": "Expor as operações por MCP stdio",
+      "status": "completed"
+    },
+    {
+      "id": 4,
+      "title": "Definir instruções de passagem e retoma para agentes",
+      "status": "completed"
+    },
+    {
+      "id": 5,
+      "title": "Criar dashboard de terminal com o comando handoff",
+      "status": "completed"
+    },
+    {
+      "id": 6,
+      "title": "Validar uma passagem real entre duas sessões de agentes",
+      "status": "pending",
+      "done_when": "O segundo agente continua apenas com o ID da thread e acesso ao projeto, respeitando as restrições e concluindo a tarefa."
+    },
+    {
+      "id": 7,
+      "title": "Corrigir lacunas de recuperação e consistência",
+      "status": "pending",
+      "done_when": "As falhas observadas na passagem real estão resolvidas; interrupções, evidências ausentes, estado desatualizado e conflitos têm comportamento verificado."
+    },
+    {
+      "id": 8,
+      "title": "Preparar três tarefas para o benchmark",
+      "status": "pending",
+      "done_when": "Cada tarefa tem critérios objetivos de sucesso e um snapshot reproduzível dos ficheiros e da conversa no ponto de interrupção."
+    },
+    {
+      "id": 9,
+      "title": "Implementar executor e medição de consumo",
+      "status": "pending",
+      "done_when": "Um executor separado do MCP compara histórico completo, resumo simples e handoff com o mesmo modelo e ferramentas, contando preparação, entrada, saída, cache, custo, tempo e sucesso."
+    },
+    {
+      "id": 10,
+      "title": "Executar o piloto e gerar relatório",
+      "status": "pending",
+      "done_when": "As três tarefas são executadas nas três condições com repetições; o relatório compara consumo total e qualidade, incluindo falhas."
+    },
+    {
+      "id": 11,
+      "title": "Ampliar o benchmark após validar o piloto",
+      "status": "pending",
+      "done_when": "Executar 10 tarefas × 3 condições × 3 repetições e avaliar também tarefas completas com várias interrupções e todos os custos de checkpoint."
+    }
+  ]
+}
